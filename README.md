@@ -1,4 +1,3 @@
-# CSC-450
 CSC 450 Project Description
 
 Eric and Kevin are developing a tool to identify the content of cancer related literature using machine learning.
