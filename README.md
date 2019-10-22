@@ -8,4 +8,6 @@ available from PubMed.  Various forms of natural language processesing, such as 
 will be performed on the data set to determine optimal efficacy of text manipulation for concept identification.
 
 These standard and modified versions of the cancer related data will be used as a training data set.  Descriptor and supplemental 
-IDs and terms identified by PubMed will be used to determine the accuracy of the machine learning throughout the iterations.
+IDs and terms identified by PubMed will be used to determine the accuracy of the machine learning process.
+
+The full website can be found at: https://kewilliams86.github.io/CSC-450/Website/welcome.html
