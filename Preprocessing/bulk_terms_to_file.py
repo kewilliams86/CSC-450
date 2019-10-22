@@ -8,7 +8,7 @@ Created on Mon Oct 21 12:09:26 2019
 database retrieval of cancer related pmids, retrieve corresponding terms, write to file
 for bulk conversion of all 972 files.
 
-testPMIDget.py username password inputdirectory outputdirectory disease2pubtatorfile 
+testPMIDget.py username password inputdirectory outputdirectory
 """
 
 import mysql.connector
@@ -41,23 +41,17 @@ def dCastDatabase (userName, password):
             print(err)
     else:
         cursor = cnx.cursor(buffered=True)
-        cursor.execute('select distinct pmid from PubMesh')
-        pmids = set(cursor.fetchall())
+        cursor.execute('select * from PubMesh')
+    
+        data = cursor.fetchone()
+        while data is not None:
+            text = str(data).strip('()').split(',')
+            pmidDict[text[0]].append(eval(text[1]))
+            data = cursor.fetchone()
+
         cnx.close()
-        for pmid in pmids:
-            pmidDict[str(pmid)[1:-2]] = [] # string (pmid,) -- remove (,)
     return pmidDict
 
-# iterate through disease2pubtator file and append terms to matching PMIDs in dictionary
-def addTerms (pmidDict, diseaseFile):
-# add disease descriptor terms to pmid in default dict
-    with open(diseaseFile) as inFile:
-        inFile.readline() #ignore first line (explainatory text)
-        for line in inFile:
-            data = splitLine(line)
-            if data[0] in pmidDict:
-                pmidDict[data[0]].append(data[1])
-    return pmidDict
 
 # read each file in the directory, write each line to new file with the disease terms added to the end
 def writeToFile (pmidDict, inputDirectory, outputDirectory):
@@ -92,7 +86,6 @@ ap.add_argument("username", help="dcast username")
 ap.add_argument("password", help="dcast password")
 ap.add_argument("inputDirectory", help = "directory of input files")
 ap.add_argument("outputDirectory", help = "directory of output files")
-ap.add_argument("disease2pubtatorfile", help = "disease2pubtator file")
 
 # print help if no arguments are provided
 if len(sys.argv)==1:
@@ -108,15 +101,12 @@ password = args['password']
 #file and directory locations
 inputDirectory = args['inputDirectory']
 outputDirectory = args['outputDirectory']
-diseaseFile = args['disease2pubtatorfile']
 
 if not os.path.exists(outputDirectory):
     os.makedirs(outputDirectory)
 
 print('Retrieving PMIDS from database...')
 pmidDict = dCastDatabase (userName, password)
-print('Adding Terms to PMID dictionary...')
-pmidDict = addTerms (pmidDict, diseaseFile)
 print('Writing to files...')
 writeToFile (pmidDict, inputDirectory, outputDirectory)
 print('All files written to selected directory...')
