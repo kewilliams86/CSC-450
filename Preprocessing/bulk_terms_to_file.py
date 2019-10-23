@@ -18,9 +18,6 @@ import sys
 from collections import defaultdict
 import os
 
-def splitLine (line):
-    return line.strip('\n').split('\t')
-
 
 # query database for all cancer related PMIDs
 # store all PMIDs into defaultdict keys with an empty list as values
@@ -42,11 +39,11 @@ def dCastDatabase (userName, password):
     else:
         cursor = cnx.cursor(buffered=True)
         cursor.execute('select * from PubMesh')
-    
+        
+        #fetchone retrieves set (pmid, diseaseID, None)
         data = cursor.fetchone()
         while data is not None:
-            text = str(data).strip('()').split(',')
-            pmidDict[text[0]].append(eval(text[1]))
+            pmidDict[data[0]].append(data[1])
             data = cursor.fetchone()
 
         cnx.close()
@@ -56,7 +53,7 @@ def dCastDatabase (userName, password):
 # read each file in the directory, write each line to new file with the disease terms added to the end
 def writeToFile (pmidDict, inputDirectory, outputDirectory):
     
-    #retrieve all files, place into a list, and sort
+    #retrieve all files, place into a list and sort
     directory = os.fsencode(inputDirectory)
     fileList = [os.fsdecode(file) for file in os.listdir(directory)]
     fileList.sort()
@@ -67,11 +64,15 @@ def writeToFile (pmidDict, inputDirectory, outputDirectory):
     # iterate through all files, open matching input and output files
     for file in fileList:
         with open(directory + file) as inFile:
-            with open(outputDirectory + file + 'terms.txt', 'w') as writeFile:
+            with open(outputDirectory + file[:-4] + '_terms.txt', 'w') as writeFile: # remove .txt from file
                 for line in inFile:
                     # split input line, write desired indices of data and add tab delimited terms
-                    data = splitLine(line)
-                    terms = ('\t').join(pmidDict[eval(data[0])])
+                    data = line.strip('\n').split('\t')
+                    
+                    #eval(eval()) used to convert ascii encapsulation to string to int
+                    # tab delimited term string
+                    terms = ('\t').join(pmidDict[eval(eval(data[0]))])
+
                     writeFile.write(eval(data[0]) + '\t' + eval(data[1]) + '\t' + eval(data[5]) + '\t' + terms + '\n')
         
         if count % 50 == 0:
@@ -101,6 +102,14 @@ password = args['password']
 #file and directory locations
 inputDirectory = args['inputDirectory']
 outputDirectory = args['outputDirectory']
+
+# make sure read from directory
+if not inputDirectory.endswith('/'):
+    inputDirectory += '/'
+
+# make sure output to directory
+if not outputDirectory.endswith('/'):
+    outputDirectory += '/'
 
 if not os.path.exists(outputDirectory):
     os.makedirs(outputDirectory)
