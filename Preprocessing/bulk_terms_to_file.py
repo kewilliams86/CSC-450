@@ -40,7 +40,7 @@ def dCastDatabase (userName, password):
         cursor = cnx.cursor(buffered=True)
         cursor.execute('select * from PubMesh')
         
-        #fetchone retrieves set (pmid, diseaseID, None)
+        #fetchone retrieves tuple (pmid, diseaseID, None)
         data = cursor.fetchone()
         while data is not None:
             pmidDict[data[0]].append(data[1])
@@ -49,9 +49,14 @@ def dCastDatabase (userName, password):
         cnx.close()
     return pmidDict
 
+#remove  \n \\n object background methods conclusions
+def removeKeywords(text):
+    return text.replace('\n', '').replace('\\n', '').replace('OBJECTIVE', '').replace('BACKGROUND', '').replace('METHODS', '').replace('CONCLUSIONS', '')
 
 # read each file in the directory, write each line to new file with the disease terms added to the end
 def writeToFile (pmidDict, inputDirectory, outputDirectory):
+    
+    
     
     #retrieve all files, place into a list and sort
     directory = os.fsencode(inputDirectory)
@@ -59,6 +64,7 @@ def writeToFile (pmidDict, inputDirectory, outputDirectory):
     fileList.sort()
     directory = eval(str(directory)[1:]) #alter directory string to reflect accurate name
     
+    retractedPmid = []
     count = 1 #counter to indicate # of files written
     
     # iterate through all files, open matching input and output files
@@ -72,17 +78,27 @@ def writeToFile (pmidDict, inputDirectory, outputDirectory):
                     #eval(eval()) used to convert ascii encapsulation to string to int
                     # tab delimited term string
                     terms = ('\t').join(pmidDict[eval(eval(data[0]))])
+                    
+                    data[1] = removeKeywords(eval(data[1]))
+                    data[5] = removeKeywords(eval(data[5]))
+                    
+                    if data[1].startswith("RETRACTED:"):
+                        retractedPmid.append([eval(data[0]), file])
+                    else: # .replace('\\n') handles rare case of '\n' mid abstract or title
+                        writeFile.write(eval(data[0]) + '\t' + data[1] + '\t' + data[5] + '\t' + terms + '\n')
 
-                    writeFile.write(eval(data[0]) + '\t' + eval(data[1]) + '\t' + eval(data[5]) + '\t' + terms + '\n')
-        
         if count % 50 == 0:
             print(str(count) + ' articles written')                
-        count += 1    
+        count += 1
+    with open('retracted_pmids.txt', 'w') as writeFile:
+        writeFile.write("Retracted PMIDs not written to file:\n")
+        for item in retractedPmid:
+            writeFile.write(str(item[0]) + '\t' + str(item[1]) + '\n')
             
         
 # main program
 # construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser(description='Extract dcast article information from PubMed xml files')
+ap = argparse.ArgumentParser(description='Write PMID, title, abstract and corresponding MeshTerms to file')
 ap.add_argument("username", help="dcast username")
 ap.add_argument("password", help="dcast password")
 ap.add_argument("inputDirectory", help = "directory of input files")
