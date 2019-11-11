@@ -8,6 +8,8 @@ Created on Mon Oct 21 12:09:26 2019
 database retrieval of cancer related pmids, retrieve corresponding terms, write to file
 for bulk conversion of all 972 files.
 
+requires words.py from GitHub repository CPP_setup
+
 if printing to single file, add 'True' as an additional argument at command line
 
 testPMIDget.py username password inputdirectory outputdirectory [singleFile]

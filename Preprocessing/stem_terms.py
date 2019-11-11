@@ -7,18 +7,17 @@ Created on Thu Oct 24 12:18:13 2019
 
 stem full text files
 
-requires words.py script from CPP_setup repository on GitHub
-CPP_setup/stem/
-
 previous evaluation decided snowball stemmer to be ideal
 
-usage: stem_terms.py inputDirectory outputDirectory
+optional argument 'True' if reading/writing to single file
+    inputDirectory = inputFile in this situation
+
+usage: stem_terms.py inputDirectory/inputFile outputDirectory [singleFile]
 """
 
 from nltk import SnowballStemmer
-from words import getWords
 import os
-from pathlib import Path
+#from pathlib import Path
 import sys
 import argparse
 import timeit
@@ -28,6 +27,7 @@ def writeToFile (inputDirectory, outputDirectory, singleFile):
     
     if singleFile == True:
         print('writing to file...')
+        t0 = timeit.default_timer()
         count = 1
         with open(inputDirectory) as inFile:
             with open(outputDirectory + 'all_file_terms_stem.txt', 'w') as writeFile:
@@ -37,7 +37,9 @@ def writeToFile (inputDirectory, outputDirectory, singleFile):
                     writeFile.write(text + '\t' + data[2])
                     
                     if count % 20000 == 0:
-                        print(str(count) + ' articles written...')
+                        t1 = timeit.default_timer()
+                        print(str(count) + ' articles written : ' + str(t1 - t0) + ' seconds')
+                        t0 = timeit.default_timer()
                     count += 1
         
     else:
@@ -48,7 +50,7 @@ def writeToFile (inputDirectory, outputDirectory, singleFile):
         directory = eval(str(directory)[1:]) #alter directory string to reflect accurate name
     
         count = 1 #counter to indicate # of files written
-        t1 = timeit.default_timer()
+        t0 = timeit.default_timer()
         # iterate through all files, open matching input and output files
         for file in fileList:
             with open(directory + file) as inFile:
@@ -60,9 +62,9 @@ def writeToFile (inputDirectory, outputDirectory, singleFile):
                         writeFile.write(text + '\t' + data[2])
     
             if count % 20 == 0:
-                t2 = timeit.default_timer()
-                time = "Time elapsed: " + str(t2-t1) + ' seconds'
-                print(str(count) + ' articles written... ' + time)
+                t1 = timeit.default_timer()
+                print(str(count) + ' files written : ' + str(t1 - t0) + ' seconds')
+                t0 = timeit.default_timer()
             count += 1    
     
     
