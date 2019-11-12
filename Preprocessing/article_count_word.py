@@ -9,6 +9,7 @@ from nltk.stem import WordNetLemmatizer
 #import nltk
 
 lemmatizer = WordNetLemmatizer()
+compareBreastCancer = False  ## Change to True if comparison of breast and all articles wanted
 
 # most common words in breast cancer articles
 with open('/home/kewilliams/Documents/CSC-450/preprocessed_data/all_file_terms.txt') as inFile:
@@ -24,36 +25,40 @@ with open('/home/kewilliams/Documents/CSC-450/preprocessed_data/all_file_terms.t
         [text.add(w) for w in abstract]
         [text.add(w) for w in title]
         articleCount += 1
-#        if data[2] == 'D001943':
-#            breastCancerCount += 1
-#            text = {lemmatizer.lemmatize(word) for word in text}
-#            for word in text:
-#                if word in breastWordDict and word in wordDict:
-#                    breastWordDict[word] += 1
-#                    wordDict[word] += 1
-#                else:
-#                    breastWordDict[word] = 1
-#                    wordDict[word] = 1
-#
-#        else:
-#            text = {lemmatizer.lemmatize(word) for word in text}
-#            for word in text:
-#                if word in wordDict:
-#                    wordDict[word] += 1
-#                else:
-#                    wordDict[word] = 1
-        
-        text = {lemmatizer.lemmatize(word) for word in text}
-        for word in text:
-            if word in wordDict:
-                wordDict[word] += 1
+        if compareBreastCancer == True: #had comparison for breast cancer
+            if data[2] == 'D001943':
+                breastCancerCount += 1
+                text = {lemmatizer.lemmatize(word) for word in text}
+                for word in text:
+                    if word in breastWordDict and word in wordDict:
+                        breastWordDict[word] += 1
+                        wordDict[word] += 1
+                    else:
+                        breastWordDict[word] = 1
+                        wordDict[word] = 1
+    
             else:
-                wordDict[word] = 1
+                text = {lemmatizer.lemmatize(word) for word in text}
+                for word in text:
+                    if word in wordDict:
+                        wordDict[word] += 1
+                    else:
+                        wordDict[word] = 1
+                        
+                        
+        else: #general output
+            text = {lemmatizer.lemmatize(word) for word in text}
+            for word in text:
+                if word in wordDict:
+                    wordDict[word] += 1
+                else:
+                    wordDict[word] = 1
 
 
 with open('/home/kewilliams/Documents/CSC-450/most_common_words_percent.csv', 'w') as writeFile:
     [writeFile.write(key + '\t' + str(wordDict[key]) + '\t' + str(round(wordDict[key] / articleCount, 3)) + '\n') for key in wordDict if wordDict[key] > 10000]
 
-#with open('/home/kewilliams/Documents/CSC-450/most_common_words_percent_breast_cancer.csv', 'w') as writeFile:
-#    writeFile.write('# of articles\t' + str(breastCancerCount) + '\n\n')
-#    [writeFile.write(key + '\t' + str(breastWordDict[key]) + '\t' + str(round(breastWordDict[key] / breastCancerCount, 3)) + '\n') for key in breastWordDict if breastWordDict[key] > 5000]
+if compareBreastCancer == True:
+    with open('/home/kewilliams/Documents/CSC-450/most_common_words_percent_breast_cancer.csv', 'w') as writeFile:
+        writeFile.write('# of articles\t' + str(breastCancerCount) + '\n\n')
+        [writeFile.write(key + '\t' + str(breastWordDict[key]) + '\t' + str(round(breastWordDict[key] / breastCancerCount, 3)) + '\n') for key in breastWordDict if breastWordDict[key] > 5000]
