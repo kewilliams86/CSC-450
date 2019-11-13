@@ -33,10 +33,10 @@ def lemmatizeText(text):
     #unsure of how tokenization parses ' and "
 #    pattern = re.compile("\'|\"|\-") # remove -, ', " before lemmatization
 #    text = pattern.sub('', text)
-#    text = text.replace('-', '') # only remove '-', want to reduce word with -
+    text = text.replace('-', '') # only remove '-', want to reduce word with -
 
-    sentence = [] # if for loop is skipped need empty list
-    sent_text = nltk.sent_tokenize(data[0])
+    sent_text = nltk.sent_tokenize(text)
+    data = []
     for s in sent_text:
         sentence = []
         tokens = word_tokenize(s)
@@ -44,7 +44,8 @@ def lemmatizeText(text):
             lemma = lemma_function.lemmatize(token, tag_map[tag[0]])
             if lemma.isalnum() and not lemma.isdigit() and len(lemma) > 2 and lemma not in stop_word_set:
                 sentence.append(lemma.lower())
-    return (' ').join(sentence)
+        data.append((' ').join(sentence))
+    return (' ').join(data)
 
 directory = '/home/kewilliams/Documents/CSC-450/preprocessed_data/'
 
