@@ -9,7 +9,6 @@ Partial code adapted from the response by user 'slider' on stackoverflow
 https://stackoverflow.com/questions/37605710/tokenize-a-paragraph-into-sentence-and-then-into-words-in-nltk
 """
 
-import re
 from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk import word_tokenize, pos_tag
@@ -49,6 +48,9 @@ def lemmatizeText(text):
 
 directory = '/home/kewilliams/Documents/CSC-450/preprocessed_data/'
 
+beginTime = timeit.default_timer()
+
+
 articleCount = 0
 t0 = timeit.default_timer()
 
@@ -63,3 +65,10 @@ with open(directory + 'all_file_terms_lemmatize.txt', 'w') as writeFile:
                 t1 = timeit.default_timer()
                 print(str(articleCount) + ' articles written... ' + str(t1 - t0) + ' seconds')
                 t0 = timeit.default_timer()
+                
+endTime = timeit.default_timer()
+
+totalTime = endTime - beginTime
+totalMin = totalTime // 60
+totalSec = totalTime % 60
+print('Total time spent = ' + str(totalMin) + 'minutes and ' + str(totalSec) + ' seconds')

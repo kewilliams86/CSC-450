@@ -12,7 +12,7 @@ requires words.py from GitHub repository CPP_setup
 
 if printing to single file, add 'True' as an additional argument at command line
 
-testPMIDget.py username password inputdirectory outputdirectory keepMeshIDFile newMeshAssociationFile [singleFile]
+write_filtered_articles_to_file_no_mod.py username password inputdirectory outputdirectory keepMeshIDFile newMeshAssociationFile [singleFile]
 
 """
 
