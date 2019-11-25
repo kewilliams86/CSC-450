@@ -46,6 +46,6 @@ def stemLine (text):
 
     snow = SnowballStemmer('english')
     
-    text = [snow.steam(t) for t in text.split()]
+    text = [snow.stem(t) for t in text.split()]
 
     return (' ').join(text)
