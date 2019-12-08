@@ -9,5 +9,3 @@ will be performed on the data set to determine optimal efficacy of text manipula
 
 These standard and modified versions of the cancer related data will be used as a training data set.  Descriptor and supplemental 
 IDs and terms identified by PubMed will be used to determine the accuracy of the machine learning process.
-
-The full website can be found at: https://kewilliams86.github.io/CSC-450/Website/welcome.html
