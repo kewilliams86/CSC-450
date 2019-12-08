@@ -6,6 +6,17 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.metrics import classification_report
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import confusion_matrix
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+fileName = "all_file_terms.txt"
+modelName = "rawTextModel.p"
+numOfAbstracts = 500000
+
 
 def getData():
     line = ""
@@ -13,17 +24,21 @@ def getData():
         "abstract_and_title" : [],
         "disease" : []
         }
-    with open("all_file_terms.txt") as file:
-        for i in range(100000):
-            line = file.readline()
-            line = line.split("\t")
-            #print(line[2])
-            abstract_title = line[0]+" "+line[1]
-            disease = line[2]
-            corpus["abstract_and_title"].append(abstract_title.strip())
-            corpus["disease"].append(disease.strip())
+    with open(fileName) as file:
+        for i in range(numOfAbstracts):
+            try:   
+                line = file.readline()
+                line = line.split("\t")
+                #print(line[2])
+                abstract_title = line[0]+" "+line[1]
+                disease = line[2]
+                corpus["abstract_and_title"].append(abstract_title.strip())
+                corpus["disease"].append(disease.strip())
+            except:
+                pass
     print("Processing %d abstract-disease pairs." % len(corpus["abstract_and_title"]))
     return corpus
+
 
 def formatData(dataFrame):
     cv = CountVectorizer(strip_accents="ascii", token_pattern=u"(?ui)\\b\\w*[a-z]+\\w*\\b", lowercase=True, stop_words="english")
@@ -93,6 +108,10 @@ def main():
     predictions = naive_bayes.predict(x_test_cv)
     results(predictions, y_test)
 
+    model = naive_bayes
+
+    #pickle.dump(model, open(modelName, "wb"))
+
 
     from collections import Counter
     c = Counter(y_train)
@@ -110,16 +129,19 @@ def main():
     #print(x_test_cv)
 
 
-    #print(classification_report(predictions, y_test))
+    print(classification_report(y_test, predictions))
+    print("Balanced Accuracy: " + str(balanced_accuracy_score(y_test, predictions)))
 
-    #dd = predict(["We are studying lung diseases but not lung cancer"], naive_bayes, x_train)
+    confusion = confusion_matrix(y_test[0:10], predictions[0:10])
+    sns.heatmap(confusion, square=True, annot=True, cmap="RdBu", cbar=False)
+    plt.xlabel("true label")
+    plt.ylabel("predicted label")
+    np.set_printoptions(precision=2)
+    print(plt.show())
+
+    #dd = predict(["We are studying lung diseases but not lung cancer"], model, x_train)
     #print(dd)
 
 main()
 input("<Enter to close>")
 
-#Questions:
-#Recall and precision score averages
-#Balanced Accuracy
-#Macro (But remove small classes)
-#KFold
